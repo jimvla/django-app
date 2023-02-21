@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin_style.css' %}">
+
+{% block content %}
+
+<h1 style="color:#4ac1f7;"><b>Upload a .csv file below:</b> </h1>
+<form action="upload-csv/">
+    <button class="login_button" type="submit">Upload</button>
+</form>
+
+{{block.super}}
+{% endblock %}

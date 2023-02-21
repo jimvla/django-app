@@ -1,0 +1,21 @@
+docker build --tag python-django . --platform linux/amd64 #Build Docker Image
+docker run --publish 8000:8000 python-django #Publish container's port to pc's port
+
+docker-compose up
+
+docker exec -u root -it pgdb_Device8 /bin/bash
+
+pip freeze > requirements.txt
+
+venv\Scripts\activate
+
+py manage.py runserver
+py manage.py makemigrations
+py manage.py migrate
+py manage.py add_data
+
+MySQL:
+show databases;
+use mydatabase;
+show tables;
+select * from device8_device8;
