@@ -19,3 +19,9 @@ show databases;
 use mydatabase;
 show tables;
 select * from device8_device8;
+
+Github:
+git pull
+git commit -m "commit message"
+git push
+
