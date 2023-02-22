@@ -15,13 +15,16 @@ py manage.py migrate
 py manage.py add_data
 
 MySQL:
-show databases;
-use mydatabase;
-show tables;
-select * from device8_device8;
+    show databases;
+    use mydatabase;
+    show tables;
+    select * from device8_device8;
 
 Github:
-git pull
-git commit -m "commit message"
-git push
+Update Code to Github:
+    git pull
+    git commit -m "commit message"
+    git push
 
+Update Code from Github:
+    git pull origin master
