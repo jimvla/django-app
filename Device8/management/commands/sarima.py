@@ -14,7 +14,7 @@ class Command(BaseCommand):
         data = pd.read_csv((csv_file),names = colnames, parse_dates = ['time'],low_memory=False)
         data = data.tail(-1)
 
-        # Applying Seasonal ARIMA model to forcast the data 
+        # Applying Seasonal ARIMA model to forecast the data 
         mod = sm.tsa.SARIMAX(data['PM1'], trend='n', order=(2,1,1), seasonal_order=(2,1,0,7))
         results = mod.fit()
         print(results.summary())
