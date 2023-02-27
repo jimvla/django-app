@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
-
-<!DOCTYPE html>
 <html>
-
+<head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.plot.ly/plotly-latest.min.css">
+</head>
 <body>
-  {% block content %}
-  <div class="content">
-    
-  </div>
-  {% endblock %}   
+  <main>
+    <div>
+      {{ figure|safe }}
+    </div>
+  </main>
 </body>
 </html>
