@@ -7,8 +7,7 @@ import plotly.express as px
 from plotly.offline import plot
 import plotly.graph_objs as go
 import pandas as pd
-from django.db import connection
-
+import numpy as np
 
 # Create your views here.
 def home(request):
@@ -18,9 +17,48 @@ def home(request):
         end_date = request.POST.get('end_date')
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
         data = pd.DataFrame(Queryset)
+
+        #Check if user provide correct dates
+        if data.empty:
+            plot_div = "No Data Found for that Date Range. Please try different values"
+
+            context = {
+                'plot_div': plot_div
+            }
+            return render(request, "home.html", context)
         
-        fig = go.Figure([go.Scatter(x=data['time'], y=data[dropdown])])
-        fig.update_layout(title='Trend Line of '+ dropdown + '(ug/m3) over time')
+        #Checking and Drop Outliers
+        Q1 = data[dropdown].quantile(0.25)
+        Q3 = data[dropdown].quantile(0.75)
+
+        IQR = Q3 - Q1
+
+        # Upper bound
+        upper = np.where(data[dropdown] >= (Q3+3*IQR))
+        # Lower bound
+        lower = np.where(data[dropdown] <= (Q1-3*IQR))
+        
+        # Removing the Outliers
+        data.drop(upper[0], inplace = True)
+        data.drop(lower[0], inplace = True)
+
+        #Calculate Rolling Mean
+        rolling_mean = data[dropdown].rolling(window=100).mean()
+        ema = data[dropdown].ewm(com=0.8).mean()
+
+        fig = px.line(x=data['time'], y=data[dropdown])
+        fig.add_scatter(x=data['time'], y=rolling_mean, line=dict(color='red', width=2), name='Trend')
+        fig.update_layout(
+            title='Trend Line of '+ dropdown + '(ug/m3) over time',
+            xaxis_title='Time',
+            yaxis_title= dropdown + '(ug/m3)',
+            font=dict(
+                family="Courier New, monospace",
+                size=18,
+                color="RebeccaPurple"
+            )
+        )        
+
         plot_div = plot(fig, output_type='div')
 
         context = {
@@ -29,6 +67,7 @@ def home(request):
             
         return render(request, "home.html", context)
     else:
+        #Homepage initial message
         plot_div = "Your Plot is going here! Just choose a Start Date and an End Date to plot your chart"
 
         context = {
