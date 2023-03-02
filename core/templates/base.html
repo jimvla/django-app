@@ -21,6 +21,11 @@
         <a style="float:right" href="{% url 'logout' %}">Log Out</a>
         <a style="float:right" href="admin/">Admin Page</a>
       </div>
+      <main>
+        {% block content %}
+        {% endblock content %}
+      </main>
+    </body>
     {% else %}
       <div class="content">
         <p>You are not logged in</p>
@@ -28,9 +33,4 @@
         <a href="{% url 'login' %}"><input type="submit" value="Log In"></a>
       </div>
     {% endif %}
-        <main>
-            {% block content %}
-            {% endblock %}
-        </main>
-    </body>
 </html>

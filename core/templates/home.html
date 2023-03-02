@@ -1,14 +1,41 @@
 {% extends 'base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
+{% block title %}Trend Line{% endblock title %}
 
-<body>
-  {% block content %}
-  <div class="content">
-    
+{% block content %}
+<br>
+<div class="card text-center">
+  <h5 class="card-header">Trend Line Plot</h5>
+  <div class="card-header">
+    <form id="home_form" method="post">
+      {% csrf_token %}
+
+      <input type="hidden" name="method" value="post">
+      
+      <label for="dropdown">Select an option:</label>
+      <select name="dropdown" id="dropdown" class="form-control">
+      <option value="PM1">PM1(ug/m3)</option>
+      <option value="PM25">PM2.5(ug/m3)</option>
+      <option value="PM10">PM10(ug/m3)</option>
+      </select>
+
+      <br>
+
+      <label for="start_date">Start Date:</label>
+      <input type="datetime-local" name="start_date" required>
+
+      <label for="end_date">End Date:</label>
+      <input type="datetime-local" name="end_date" required>
+
+      <button type="submit">Plot Graph</button>
+    </form>
+    <br>
   </div>
-  {% endblock %}   
-</body>
-</html>
+  
+  <div class="card-body">
+    {{ plot_div|safe }}
+  </div>
+</div>
+
+{% endblock %}
