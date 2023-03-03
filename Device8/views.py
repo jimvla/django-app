@@ -17,6 +17,7 @@ def home(request):
         end_date = request.POST.get('end_date')
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
         data = pd.DataFrame(Queryset)
+        data['time'] = pd.to_datetime(data['time'])
 
         #Check if user provide correct dates
         if data.empty:
@@ -42,23 +43,53 @@ def home(request):
         data.drop(upper[0], inplace = True)
         data.drop(lower[0], inplace = True)
 
-        #Calculate Rolling Mean
-        rolling_mean = data[dropdown].rolling(window=100).mean()
-        ema = data[dropdown].ewm(com=0.8).mean()
+        new_df = pd.DataFrame({
+        'date': data['time'].dt.date.unique(),
+        'open': data.groupby(data['time'].dt.date)['PM1'].first(),
+        'close': data.groupby(data['time'].dt.date)['PM1'].last(),
+        'high': data.groupby(data['time'].dt.date)['PM1'].max(),
+        'low': data.groupby(data['time'].dt.date)['PM1'].min(),
+        })
 
-        fig = px.line(x=data['time'], y=data[dropdown])
-        fig.add_scatter(x=data['time'], y=rolling_mean, line=dict(color='red', width=2), name='Trend')
-        fig.update_layout(
+        # Reset index of the new dataframe
+        new_df = new_df.reset_index(drop=True)
+
+        trace = go.Candlestick(
+            x=new_df['date'],
+            open=new_df['open'],
+            high=new_df['high'],
+            low=new_df['low'],
+            close=new_df['close'],
+            name='Candestick'
+        )
+
+        layout = go.Layout(
             title='Trend Line of '+ dropdown + '(ug/m3) over time',
             xaxis_title='Time',
             yaxis_title= dropdown + '(ug/m3)',
+            xaxis=dict(rangeslider=dict(visible=False)),
             font=dict(
                 family="Courier New, monospace",
                 size=18,
                 color="RebeccaPurple"
-            )
-        )        
-
+            ),
+            template = 'plotly_dark'
+        )
+               
+        #Calculate Rolling Mean
+        #rolling_mean = data[dropdown].rolling(window=100).mean()
+        ema10 = data[dropdown].ewm(span=10).mean()
+        #ema25 = data[dropdown].ewm(span=25).mean()
+        #ema99 = data[dropdown].ewm(span=99).mean()    
+        #trace1 = go.Scatter(x=data['time'], y=data[dropdown], name=dropdown)
+        trace2 = go.Scatter(x=data['time'], y=ema10, line=dict(color='yellow', width=1), name='TREND')
+        #fig.add_scatter(x=data['time'], y=ema25, line=dict(color='pink', width=2), name='EMA(25)')
+        #fig.add_scatter(x=data['time'], y=ema99, line=dict(color='purple', width=2), name='EMA(99)')
+        candle = [trace, trace2]
+        #traces = [trace1, trace2]
+        #Plot
+        fig = go.Figure(data=candle, layout=layout)
+        
         plot_div = plot(fig, output_type='div')
 
         context = {
