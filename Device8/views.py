@@ -51,6 +51,8 @@ def home(request):
         'low': data.groupby(data['time'].dt.date)['PM1'].min(),
         })
 
+        new_df['4wma'] = new_df['close'].rolling(window=3).mean()
+        new_df['wma'] = new_df['close'].rolling(window=5).mean()
         # Reset index of the new dataframe
         new_df = new_df.reset_index(drop=True)
 
@@ -78,18 +80,20 @@ def home(request):
                
         #Calculate Rolling Mean
         #rolling_mean = data[dropdown].rolling(window=100).mean()
-        ema10 = data[dropdown].ewm(span=10).mean()
+        #ema10 = data[dropdown].ewm(span=10).mean()
         #ema25 = data[dropdown].ewm(span=25).mean()
         #ema99 = data[dropdown].ewm(span=99).mean()    
         #trace1 = go.Scatter(x=data['time'], y=data[dropdown], name=dropdown)
-        trace2 = go.Scatter(x=data['time'], y=ema10, line=dict(color='yellow', width=1), name='TREND')
+        #trace2 = go.Scatter(x=data['time'], y=rolling_mean, line=dict(color='yellow', width=1), name='TREND')
         #fig.add_scatter(x=data['time'], y=ema25, line=dict(color='pink', width=2), name='EMA(25)')
         #fig.add_scatter(x=data['time'], y=ema99, line=dict(color='purple', width=2), name='EMA(99)')
-        candle = [trace, trace2]
+        candle = [trace]
         #traces = [trace1, trace2]
+    
         #Plot
         fig = go.Figure(data=candle, layout=layout)
-        
+        fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['4wma'], line=dict(color = 'yellow'), name= "Moving Average"))
+        fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['wma'], line=dict(color = 'pink'), name= "Moving Average New"))
         plot_div = plot(fig, output_type='div')
 
         context = {
