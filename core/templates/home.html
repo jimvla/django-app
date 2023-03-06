@@ -5,15 +5,15 @@
 
 {% block content %}
 <br>
-<div class="card text-center">
+<div class="card text-center" style="width: 35%; margin: 0 auto;">
   <h5 class="card-header">Trend Line Plots in a Hourly Candlestick Diagram</h5>
-  <div class="card-header">
+  <div class="card-body">
     <form id="home_form" method="post">
       {% csrf_token %}
 
       <input type="hidden" name="method" value="post">
       
-      <label for="dropdown">Select an option:</label>
+      <label for="dropdown">Select PM value:</label>
       <select name="dropdown" id="dropdown" class="form-control">
       <option value="PM1">PM1(ug/m3)</option>
       <option value="PM25">PM2.5(ug/m3)</option>
@@ -27,16 +27,20 @@
 
       <label for="end_date">End Date:</label>
       <input type="datetime-local" name="end_date" required>
-
-      <button type="submit">Plot Graph</button>
+      <br>
+      <br>
+      <button type="submit" class="btn btn-secondary">Plot Graph</button>
     </form>
+  </div>
+</div>
+<br>
+<div class= "card" style="width: 98%; margin: 0 auto;">
+  <div class="card text-center">
+    <br>
+    <h3 style="width: 98%; margin: 0 auto;">{{ plot_div|safe }}</h3>
     <br>
   </div>
-  
-  <div class="card-body">
-    {{ plot_div|safe }}
-  </div>
-  <br>
 </div>
-
+<br>
+</div>
 {% endblock %}

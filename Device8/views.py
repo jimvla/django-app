@@ -114,7 +114,7 @@ def home(request):
         return render(request, "home.html", context)
     else:
         # Homepage initial message before plotting the graph
-        plot_div = "Your Plot is going here! Just choose a Start Date and an End Date to plot your chart"
+        plot_div = "Your Plot is going here! Just choose a PM value, a Start Date and an End Date to plot your chart"
 
         context = {
             'plot_div': plot_div,
