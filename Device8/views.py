@@ -44,13 +44,30 @@ def home(request):
         data.drop(lower[0], inplace = True)
 
         # New DataFrame to help us with the Candlestick Plot
-        new_df = pd.DataFrame({
-        'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
-        'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].first(),
-        'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].last(),
-        'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].max(),
-        'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].min(),
-        })
+        if dropdown == 'PM1':
+            new_df = pd.DataFrame({
+            'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].min(),
+            })
+        elif dropdown == 'PM25':
+            new_df = pd.DataFrame({
+            'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].min(),
+            })
+        else:
+            new_df = pd.DataFrame({
+            'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].min(),
+            })    
 
         # Trends using Rolling Window and EMA
         new_df['4wma'] = new_df['close'].rolling(window=3).mean()
