@@ -47,6 +47,13 @@
     transform: translate(-50%, -50%);
   }
 
+  .login-box{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   .form_login{
     display: table-cell;
     text-align: center;

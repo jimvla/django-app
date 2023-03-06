@@ -87,7 +87,7 @@ def home(request):
         # Plot Figure
         fig = go.Figure(data=candle, layout=layout)
         fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['4wma'], line=dict(color = 'yellow'), name= "Moving Average"))
-        fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['wma'], line=dict(color = 'pink'), name= "Moving Average New"))
+        fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['wma'], line=dict(color = 'pink'), name= "Exponential MA"))
         plot_div = plot(fig, output_type='div')
 
         context = {
