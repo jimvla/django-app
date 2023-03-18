@@ -12,7 +12,11 @@ import numpy as np
 # Home view for our page
 def home(request):
     if request.method=="POST":
+        # GET INPUTS
         dropdown = request.POST.get('dropdown')
+        radio = request.POST.get('inlineRadioOptions')
+        MA = request.POST.get('inlineCheckbox1')
+        EMA = request.POST.get('inlineCheckbox2')       
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
@@ -46,33 +50,30 @@ def home(request):
         # New DataFrame to help us with the Candlestick Plot
         if dropdown == 'PM1':
             new_df = pd.DataFrame({
-            'date': data.groupby(pd.Grouper(key='time', freq='8H'))['time'].first(),
-            'open': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].first(),
-            'close': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].last(),
-            'high': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].max(),
-            'low': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].min(),
+            'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq=radio))['PM1'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq=radio))['PM1'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM1'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM1'].min(),
             })
         elif dropdown == 'PM25':
             new_df = pd.DataFrame({
-            'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
-            'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].first(),
-            'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].last(),
-            'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].max(),
-            'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM25'].min(),
+            'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].min(),
             })
         else:
             new_df = pd.DataFrame({
-            'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
-            'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].first(),
-            'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].last(),
-            'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].max(),
-            'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM10'].min(),
+            'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].min(),
             })    
 
-        # Trends using Rolling Window and EMA
-        new_df['4wma'] = new_df['close'].rolling(window=3).mean()
-        new_df['wma'] = new_df['close'].ewm(span=10).mean()
-
+        
         # Reset index of the new DataFrame
         new_df = new_df.reset_index(drop=True)
 
@@ -101,10 +102,14 @@ def home(request):
                
         candle = [trace]
 
-        # Plot Figure
+        # Plot Figure + Trends using Rolling Window and EMA
         fig = go.Figure(data=candle, layout=layout)
-        fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['4wma'], line=dict(color = 'yellow'), name= "Moving Average"))
-        fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['wma'], line=dict(color = 'pink'), name= "Exponential MA"))
+        if MA:      
+            new_df['ma'] = new_df['close'].rolling(window=3).mean()
+            fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ma'], line=dict(color = 'yellow'), name= "Moving Average"))
+        if EMA:
+            new_df['ema'] = new_df['close'].ewm(span=10).mean()
+            fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ema'], line=dict(color = 'pink'), name= "Exponential MA"))
         plot_div = plot(fig, output_type='div')
 
         context = {

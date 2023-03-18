@@ -6,7 +6,7 @@
 {% block content %}
 <br>
 <div class="card text-center" style="width: 35%; margin: 0 auto;">
-  <h5 class="card-header">Trend Line Plots in a Hourly Candlestick Diagram</h5>
+  <h5 class="card-header">Trend Line Plots in a Candlestick Chart</h5>
   <div class="card-body">
     <form id="home_form" method="post">
       {% csrf_token %}
@@ -20,6 +20,36 @@
       <option value="PM10">PM10(ug/m3)</option>
       </select>
 
+      <br>
+
+      <label for="inlineRadioOptions">Frequency: </label>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" checked="checked" name="inlineRadioOptions" id="inlineRadio" value="H">
+        <label class="form-check-label" for="inlineRadio1">1 Hour</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio" value="8H">
+        <label class="form-check-label" for="inlineRadio2">8 Hour</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio" value="D">
+        <label class="form-check-label" for="inlineRadio3">1 Day</label>
+      </div>
+
+      <br>
+      <br>
+
+      <label class="form-check form-check-inline" for="inlineCheckboxs">Add Trend Line</label>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="inlineCheckbox1" value="MA">
+        <label class="form-check-label" for="inlineCheckbox1">MA</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="inlineCheckbox2" value="EMA">
+        <label class="form-check-label" for="inlineCheckbox2">EMA</label>
+      </div>
+
+      <br>
       <br>
 
       <label for="start_date">Start Date:</label>
