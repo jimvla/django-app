@@ -16,4 +16,4 @@ class Device8 (models.Model):
         verbose_name_plural = ("Device8 Data")
 
     def __str__(self):
-        return "{} - {}".format(self.time, self.PM1)
+        return "Device8: {}".format(self.time)

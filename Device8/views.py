@@ -35,9 +35,9 @@ def home(request):
         IQR = Q3 - Q1
 
         # Upper bound
-        upper = np.where(data[dropdown] >= (Q3+3*IQR))
+        upper = np.where(data[dropdown] >= (Q3+1.5*IQR))
         # Lower bound
-        lower = np.where(data[dropdown] <= (Q1-3*IQR))
+        lower = np.where(data[dropdown] <= (Q1-1.5*IQR))
         
         # Removing the Outliers
         data.drop(upper[0], inplace = True)
@@ -46,11 +46,11 @@ def home(request):
         # New DataFrame to help us with the Candlestick Plot
         if dropdown == 'PM1':
             new_df = pd.DataFrame({
-            'date': data.groupby(pd.Grouper(key='time', freq='H'))['time'].first(),
-            'open': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].first(),
-            'close': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].last(),
-            'high': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].max(),
-            'low': data.groupby(pd.Grouper(key='time', freq='H'))['PM1'].min(),
+            'date': data.groupby(pd.Grouper(key='time', freq='8H'))['time'].first(),
+            'open': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].first(),
+            'close': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].last(),
+            'high': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].max(),
+            'low': data.groupby(pd.Grouper(key='time', freq='8H'))['PM1'].min(),
             })
         elif dropdown == 'PM25':
             new_df = pd.DataFrame({
