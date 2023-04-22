@@ -5,72 +5,91 @@
 
 {% block content %}
 <br>
-<div class="card text-center" style="width: 35%; margin: 0 auto;">
-  <h5 class="card-header">Trend Line Plots in a Candlestick Chart</h5>
-  <div class="card-body">
-    <form id="home_form" method="post">
-      {% csrf_token %}
+<div class="row no-gutters">
+  <div class="col-sm-4">
+    <div class="card text-center" style="width: 100%; margin-left: 10px;">
+      <h5 class="card-header">Trend Line Plots in a Candlestick Chart</h5>
+      <div class="card-body">
+        <form id="home_form" method="post">
+          {% csrf_token %}
 
-      <input type="hidden" name="method" value="post">
-      
-      <label for="dropdown">Select PM value:</label>
-      <select name="dropdown" id="dropdown" class="form-control">
-      <option value="PM1">PM1(ug/m3)</option>
-      <option value="PM25">PM2.5(ug/m3)</option>
-      <option value="PM10">PM10(ug/m3)</option>
-      </select>
+          <input type="hidden" name="method" value="post">
+          
+          <label for="dropdown">Select PM value:</label>
+          <select name="dropdown" id="dropdown" class="form-control">
+          <option value="PM1">PM1(ug/m3)</option>
+          <option value="PM25">PM2.5(ug/m3)</option>
+          <option value="PM10">PM10(ug/m3)</option>
+          </select>
 
-      <br>
+          <br>
 
-      <label for="inlineRadioOptions">Frequency: </label>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" checked="checked" name="inlineRadioOptions" id="inlineRadio" value="H">
-        <label class="form-check-label" for="inlineRadio1">1 Hour</label>
+          <label for="inlineRadioOptions1">Remove Outliers: </label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" checked="checked" name="inlineRadioOptions1" id="inlineRadio1" value="True">
+            <label class="form-check-label" for="inlineRadio1">Yes</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions1" id="inlineRadio1" value="False">
+            <label class="form-check-label" for="inlineRadio2">No</label>
+          </div>
+
+          <br>
+          <br>
+
+          <label for="inlineRadioOptions">Frequency: </label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" checked="checked" name="inlineRadioOptions" id="inlineRadio" value="H">
+            <label class="form-check-label" for="inlineRadio3">1 Hour</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio" value="8H">
+            <label class="form-check-label" for="inlineRadio4">8 Hour</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio" value="D">
+            <label class="form-check-label" for="inlineRadio5">1 Day</label>
+          </div>
+
+          <br>
+          <br>
+
+          <label class="form-check form-check-inline" for="inlineCheckboxs">Add Trend Line</label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="inlineCheckbox1" value="MA">
+            <label class="form-check-label" for="inlineCheckbox1">MA</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="inlineCheckbox2" value="EMA">
+            <label class="form-check-label" for="inlineCheckbox2">EMA</label>
+          </div>
+
+          <br>
+          <br>
+
+          <label for="start_date">Start Date:</label>
+          <input type="datetime-local" name="start_date" required>
+
+          <label for="end_date">End Date:</label>
+          <input type="datetime-local" name="end_date" required>
+          <br>
+          <br>
+          <button type="submit" class="btn btn-secondary">Plot Graph</button>
+        </form>
       </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio" value="8H">
-        <label class="form-check-label" for="inlineRadio2">8 Hour</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio" value="D">
-        <label class="form-check-label" for="inlineRadio3">1 Day</label>
-      </div>
-
-      <br>
-      <br>
-
-      <label class="form-check form-check-inline" for="inlineCheckboxs">Add Trend Line</label>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" name="inlineCheckbox1" value="MA">
-        <label class="form-check-label" for="inlineCheckbox1">MA</label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" name="inlineCheckbox2" value="EMA">
-        <label class="form-check-label" for="inlineCheckbox2">EMA</label>
-      </div>
-
-      <br>
-      <br>
-
-      <label for="start_date">Start Date:</label>
-      <input type="datetime-local" name="start_date" required>
-
-      <label for="end_date">End Date:</label>
-      <input type="datetime-local" name="end_date" required>
-      <br>
-      <br>
-      <button type="submit" class="btn btn-secondary">Plot Graph</button>
-    </form>
+    </div>
   </div>
-</div>
-<br>
-<div class= "card" style="width: 98%; margin: 0 auto;">
-  <div class="card text-center">
-    <br>
-    <h3 style="width: 98%; margin: 0 auto;">{{ plot_div|safe }}</h3>
-    <br>
+
+  <br>
+
+  <div class="col-sm-8">
+    <div class= "card" style="width: 100%; margin-right: auto;">
+      <div class="card text-center">
+        <br>
+        <h3 style="width: 98%; margin: 0 auto;">{{ plot_div|safe }}</h3>
+        <br>
+      </div>
+    </div>
   </div>
-</div>
-<br>
 </div>
 {% endblock %}
