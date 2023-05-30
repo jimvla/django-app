@@ -24,13 +24,30 @@ class Device8Admin(admin.ModelAdmin):
         if request.method == "POST":
             csv_file = request.FILES["csv_upload"]
 
+            #Check if the file is a csv
             if not csv_file.name.endswith('.csv'):
-                messages.warning(request, "Wrong file type was uploaded")
+                messages.warning(request, "Wrong file type was uploaded. Please upload a csv file")
                 return HttpResponseRedirect(request.path_info)
+            
+            #Check if the file is an empty csv
+            if csv_file.size == 0:
+                messages.warning(request, "An Empty csv file was uploaded")
+                return HttpResponseRedirect(request.path_info)
+            
+            #Else Check if the file has different header from what we want
+            else:
+                csv_check = pd.read_csv(csv_file, nrows=1)
+                cols_list = csv_check.columns.tolist()
+                col_check = ['time', 'PM1(ug/m3)', 'PM10(ug/m3)', 'PM2.5(ug/m3)', 'RH(%)', 'T(C)']
+                if not cols_list == col_check:
+                    messages.warning(request, "Wrong csv format file was uploaded")
+                    return HttpResponseRedirect(request.path_info)
             
             colnames = ['time', 'PM1', 'PM10', 'PM25','RH','T']
             data = pd.read_csv((csv_file),names=colnames, header=None, parse_dates = ['time'], low_memory=False)
             data = data.tail(-1)	
+
+            #Connect to Database and add data
             url_object = URL.create(
                 "mysql",
                 username= settings.DATABASES['default']['USER'],

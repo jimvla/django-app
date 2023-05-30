@@ -20,6 +20,9 @@ def home(request):
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         outliers = request.POST.get('inlineRadioOptions1') # Keep or Delete Outliers
+        rolling_window = int(request.POST.get('numberInput')) #Select Rolling Window Size
+
+        print(rolling_window)
 
         # Get Query from DB
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
@@ -111,10 +114,10 @@ def home(request):
             # Plot Figure + Trend Lines using MA and EMA
             fig = go.Figure(data=candle, layout=layout)
             if MA:      
-                new_df['ma'] = new_df['close'].rolling(window=5).mean()
+                new_df['ma'] = new_df['close'].rolling(window=rolling_window).mean()
                 fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ma'], line=dict(color = 'yellow'), name= "Moving Average"))
             if EMA:
-                new_df['ema'] = new_df['close'].ewm(span=10).mean()
+                new_df['ema'] = new_df['close'].ewm(span=rolling_window).mean()
                 fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ema'], line=dict(color = 'blue'), name= "Exponential MA"))
             plot_div = plot(fig, output_type='div')
 
