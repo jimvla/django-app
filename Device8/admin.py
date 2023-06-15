@@ -40,7 +40,7 @@ class Device8Admin(admin.ModelAdmin):
                 cols_list = csv_check.columns.tolist()
                 col_check = ['time', 'PM1(ug/m3)', 'PM10(ug/m3)', 'PM2.5(ug/m3)', 'RH(%)', 'T(C)']
                 if not cols_list == col_check:
-                    messages.warning(request, "Wrong csv format file was uploaded")
+                    messages.warning(request, "Wrong csv column format was uploaded")
                     return HttpResponseRedirect(request.path_info)
             
             colnames = ['time', 'PM1', 'PM10', 'PM25','RH','T']

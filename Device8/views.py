@@ -13,16 +13,16 @@ import numpy as np
 def home(request):
     if request.method=="POST":
         # Get Inputs
-        dropdown = request.POST.get('dropdown') # PM Value
+        dropdown = request.POST.get('dropdown') # Value
         radio = request.POST.get('inlineRadioOptions') # Frequency Selection
-        MA = request.POST.get('inlineCheckbox1') 
-        EMA = request.POST.get('inlineCheckbox2')      
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
+        MA = request.POST.get('inlineCheckbox1') # MA Flag
+        EMA = request.POST.get('inlineCheckbox2')   # EMA Flag
+        Boll = request.POST.get('inlineCheckbox3')  # Boll Flag
+        start_date = request.POST.get('start_date')  # Starting Date of the plot
+        end_date = request.POST.get('end_date') # Ending Date of the plot
         outliers = request.POST.get('inlineRadioOptions1') # Keep or Delete Outliers
         rolling_window = int(request.POST.get('numberInput')) #Select Rolling Window Size
 
-        print(rolling_window)
 
         # Get Query from DB
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
@@ -73,7 +73,7 @@ def home(request):
                 'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].max(),
                 'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].min(),
                 })
-            else:
+            elif dropdown == 'PM10':
                 new_df = pd.DataFrame({
                 'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
                 'open': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].first(),
@@ -81,7 +81,22 @@ def home(request):
                 'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].max(),
                 'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].min(),
                 })    
-
+            elif dropdown == 'RH':
+                new_df = pd.DataFrame({
+                'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
+                'open': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].first(),
+                'close': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].last(),
+                'high': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].max(),
+                'low': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].min(),
+                })  
+            elif dropdown == 'T':
+                new_df = pd.DataFrame({
+                'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
+                'open': data.groupby(pd.Grouper(key='time', freq=radio))['T'].first(),
+                'close': data.groupby(pd.Grouper(key='time', freq=radio))['T'].last(),
+                'high': data.groupby(pd.Grouper(key='time', freq=radio))['T'].max(),
+                'low': data.groupby(pd.Grouper(key='time', freq=radio))['T'].min(),
+                })
         
             # Reset index of the new DataFrame
             new_df = new_df.reset_index(drop=True)
@@ -97,14 +112,14 @@ def home(request):
             )
 
             layout = go.Layout(
-                title='Trend Line of '+ dropdown + '(ug/m3) over time',
+                title='Trend Line of '+ dropdown + ' over time',
                 xaxis_title='Time',
-                yaxis_title= dropdown + '(ug/m3)',
+                yaxis_title= dropdown ,
                 xaxis=dict(rangeslider=dict(visible=False)),
                 font=dict(
                     family="Courier New, monospace",
                     size=18,
-                    color="RebeccaPurple"
+                    color="White"
                 ),
                 template = 'plotly_dark'
             )
@@ -119,6 +134,14 @@ def home(request):
             if EMA:
                 new_df['ema'] = new_df['close'].ewm(span=rolling_window).mean()
                 fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ema'], line=dict(color = 'blue'), name= "Exponential MA"))
+            if Boll:      
+                new_df['rolling_mean'] = new_df['close'].rolling(window=rolling_window).mean()
+                new_df['std'] = new_df['close'].rolling(window=rolling_window).std()
+                new_df['UpperBand'] = new_df['rolling_mean'] + 2 * new_df['std']
+                new_df['LowerBand'] = new_df['rolling_mean'] - 2 * new_df['std']
+                fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['UpperBand'], line=dict(color = 'pink'), name= "Upper Bollinger Band"))
+                fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['LowerBand'], line=dict(color = 'purple'), name= "Lower Bollinger Band"))
+            
             plot_div = plot(fig, output_type='div')
 
             #Add plot to home html page

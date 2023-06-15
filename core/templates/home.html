@@ -15,11 +15,13 @@
 
           <input type="hidden" name="method" value="post">
           
-          <label for="dropdown">Select PM value:</label>
+          <label for="dropdown">Select PM value, Temperature or Relative Humidity:</label>
           <select name="dropdown" id="dropdown" class="form-control">
           <option value="PM1">PM1(ug/m3)</option>
           <option value="PM25">PM2.5(ug/m3)</option>
           <option value="PM10">PM10(ug/m3)</option>
+          <option value="T">T(C)</option>
+          <option value="RH">RH(%)</option>
           </select>
 
           <br>
@@ -63,13 +65,17 @@
             <input class="form-check-input" type="checkbox" name="inlineCheckbox2" value="EMA">
             <label class="form-check-label" for="inlineCheckbox2">EMA</label>
           </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="inlineCheckbox3" value="Boll">
+            <label class="form-check-label" for="inlineCheckbox3">Boll</label>
+          </div>
 
           <br>
           <br>
 
           <div class="form-group">
             <label for="numberInput">Rolling Window Size</label>
-            <input type="number" class="form-control" id="numberInput" name="numberInput" min="1" max="100" required>
+            <input type="number" class="form-control" id="numberInput" name="numberInput" min="1" max="1000" required>
           </div>
         
           <br>
