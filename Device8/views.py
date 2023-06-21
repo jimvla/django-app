@@ -29,20 +29,33 @@ def home(request):
 
         # Get Query from DB
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
-        data = pd.DataFrame(Queryset)
-        data['time'] = pd.to_datetime(data['time'])
 
-        #Check if user provide dates that exist in our data
-        if data.empty:
-            plot_div = "No Data Found for that Date Range. Please try different values"
+        # Check if user provides dates that exist in our data
+        if (end_date < start_date):
+            # Check if start date is earlier of end date
+            plot_div = "Start date has to be earlier from the end date. Please try different dates."
 
             context = {
                 'plot_div': plot_div
             }
-            return render(request, "home.html", context)
+            return render(request, "home.html", context) 
+        
+        elif (len(Queryset) == 0):
+            # Check if we have available data for that specific range
+            plot_div = "No Data found for that range of dates. Please try different dates."
+
+            context = {
+                'plot_div': plot_div
+            }
+            return render(request, "home.html", context) 
         
         else:
 
+            # Make our pandas Dataframe
+            data = pd.DataFrame(Queryset)
+            data['time'] = pd.to_datetime(data['time'])
+
+            # Remove Outliers
             if outliers == "True":
                 # Checking and Drop Outliers
                 Q1 = data[dropdown].quantile(0.25)
@@ -129,7 +142,7 @@ def home(request):
                     
                 candle = [trace]
 
-                # Plot Figure + Trend Lines using MA and EMA
+                # Plot Figure + Trend Lines using MA, EMA, Bollinger Bands and PSAR
                 fig = go.Figure(data=candle, layout=layout)
                 if MA:      
                     new_df['ma'] = new_df['close'].rolling(window=rolling_window).mean()
