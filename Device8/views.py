@@ -9,6 +9,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import ta.trend as ta
+from tabulate import tabulate
 
 # Home view for our page
 def home(request):
@@ -164,6 +165,10 @@ def home(request):
                     fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['parabolic_sar_down'], mode='markers', line=dict(color = 'orange'), name= "Down Trend"))
 
                 plot_div = plot(fig, output_type='div')
+
+                #print(tabulate(new_df, headers = 'keys', tablefmt = 'psql'))
+                new_df.to_excel("output.xlsx")
+
 
                 #Add plot to home html page
                 context = {

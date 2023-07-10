@@ -1,28 +1,29 @@
-version: "3.8"
+version: "3"
 
 services:
   app:
     build: .
-    volumes:
-      - .:/django
-    ports:
-      - 8000:8000
-    image:  app:django
-    container_name: django_container
     command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /tmp/app/mysqld:/run/mysqld
     depends_on:
       - db
-  
   db:
-    image: mysql
-    restart: always
-    environment:
-      - MYSQL_DATABASE=mydatabase
-      - MYSQL_ROOT_PASSWORD=pass
+    image: mysql:8
     ports:
-      - '3306:3306'
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE='mydatabase'
+      - MYSQL_USER='root'
+      - MYSQL_PASSWORD='pass'
+      - MYSQL_ROOT_PASSWORD='pass'
+      - MYSQL_HOST=''
     volumes:
-      - db:/var/lib/mysql
+      - /tmp/app/mysqld:/var/run/mysqld
+      - ./db:/var/lib/mysql
 
 
 
