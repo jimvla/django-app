@@ -13,7 +13,7 @@
         <form id="home_form" method="post">
           {% csrf_token %}
 
-          <input type="hidden" name="method" value="post">
+          <!--<input type="hidden" name="method" value="post">-->
 
           <label for="dropdown">Select PM value, Temperature or Relative Humidity:</label>
           <select name="dropdown" id="dropdown" class="form-control">
@@ -77,7 +77,7 @@
 
           <br>
           <br>
-
+          <!--
           <label for="inlineRadioOptions2">Rolling Window Size </label>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" checked="checked" name="inlineRadioOptions2" id="inlineRadio" value="7">
@@ -91,7 +91,14 @@
             <input class="form-check-input" type="radio" name="inlineRadioOptions2" id="inlineRadio" value="99">
             <label class="form-check-label" for="inlineRadio5">99</label>
           </div>
-
+          
+          <label class="form-label" for="typeNumber">Rolling Window Size</label>
+          <input name="typeNumber" type="number" class="form-control" min="1" max="100"/>
+          -->
+         
+          <label class="form-label" for="typeNumber">Rolling Window Size</label>
+          <input type="number" name="typeNumber" class="form-control" required/>
+          
           <br>
           <br>
 

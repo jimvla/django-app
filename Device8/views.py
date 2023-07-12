@@ -8,25 +8,30 @@ from plotly.offline import plot
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 import ta.trend as ta
-from tabulate import tabulate
 
 # Home view for our page
 def home(request):
     if request.method=="POST":
         
         # Get Inputs
-        
+
         dropdown = request.POST.get('dropdown') # Value of Data
         radio = request.POST.get('inlineRadioOptions') # Frequency Selection
         MA = request.POST.get('inlineCheckbox1') # MA Flag
         EMA = request.POST.get('inlineCheckbox2')   # EMA Flag
         Boll = request.POST.get('inlineCheckbox3')  # Boll Flag
         Sar = request.POST.get('inlineCheckbox4')  # Sar Flag
-        rolling_window = int(request.POST.get('inlineRadioOptions2')) # Rolling Window Size
+        rolling_window = int(request.POST.get('typeNumber')) # Rolling Window Size
         start_date = request.POST.get('start_date')  # Starting Date of the plot
         end_date = request.POST.get('end_date') # Ending Date of the plot
         outliers = request.POST.get('inlineRadioOptions1') # Keep or Delete Outliers
+
+        #How to make substraction with datetime 
+        #new = pd.to_datetime(start_date) - timedelta(days=rolling_window)
+        #print(start_date)
+        #print(new)
 
         # Get Query from DB
         Queryset = Device8.objects.filter(time__range=[start_date, end_date]).values()
@@ -82,6 +87,10 @@ def home(request):
                     'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM1'].max(),
                     'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM1'].min(),
                     })
+                    trends = pd.DataFrame({
+                        'date': data.groupby(pd.Grouper(key='time', freq='1H'))['time'].first(),
+                        'mean': data.groupby(pd.Grouper(key='time', freq='1H'))['PM1'].mean(),
+                    })
                 elif dropdown == 'PM25':
                     new_df = pd.DataFrame({
                     'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
@@ -90,6 +99,10 @@ def home(request):
                     'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].max(),
                     'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM25'].min(),
                     })
+                    trends = pd.DataFrame({
+                        'date': data.groupby(pd.Grouper(key='time', freq='1H'))['time'].first(),
+                        'mean': data.groupby(pd.Grouper(key='time', freq='1H'))['PM25'].mean(),
+                    })
                 elif dropdown == 'PM10':
                     new_df = pd.DataFrame({
                     'date': data.groupby(pd.Grouper(key='time', freq=radio))['time'].first(),
@@ -97,6 +110,10 @@ def home(request):
                     'close': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].last(),
                     'high': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].max(),
                     'low': data.groupby(pd.Grouper(key='time', freq=radio))['PM10'].min(),
+                    })
+                    trends = pd.DataFrame({
+                        'date': data.groupby(pd.Grouper(key='time', freq='1H'))['time'].first(),
+                        'mean': data.groupby(pd.Grouper(key='time', freq='1H'))['PM10'].mean(),
                     })    
                 elif dropdown == 'RH':
                     new_df = pd.DataFrame({
@@ -105,6 +122,10 @@ def home(request):
                     'close': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].last(),
                     'high': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].max(),
                     'low': data.groupby(pd.Grouper(key='time', freq=radio))['RH'].min(),
+                    })
+                    trends = pd.DataFrame({
+                        'date': data.groupby(pd.Grouper(key='time', freq='1H'))['time'].first(),
+                        'mean': data.groupby(pd.Grouper(key='time', freq='1H'))['RH'].mean(),
                     })  
                 elif dropdown == 'T':
                     new_df = pd.DataFrame({
@@ -114,9 +135,14 @@ def home(request):
                     'high': data.groupby(pd.Grouper(key='time', freq=radio))['T'].max(),
                     'low': data.groupby(pd.Grouper(key='time', freq=radio))['T'].min(),
                     })
-            
+                    trends = pd.DataFrame({
+                        'date': data.groupby(pd.Grouper(key='time', freq='1H'))['time'].first(),
+                        'mean': data.groupby(pd.Grouper(key='time', freq='1H'))['T'].mean(),
+                    })
+
                 # Reset index of the new DataFrame
                 new_df = new_df.reset_index(drop=True)
+                trends = trends.reset_index(drop=True)
 
                 # Candlestick Trace and Layout
                 trace = go.Candlestick(
@@ -146,18 +172,18 @@ def home(request):
                 # Plot Figure + Trend Lines using MA, EMA, Bollinger Bands and PSAR
                 fig = go.Figure(data=candle, layout=layout)
                 if MA:      
-                    new_df['ma'] = new_df['close'].rolling(window=rolling_window).mean()
-                    fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ma'], line=dict(color = 'yellow'), name= "Moving Average"))
+                    trends['ma'] = trends['mean'].rolling(window=rolling_window).mean()
+                    fig.add_trace(go.Scatter(x=trends['date'], y=trends['ma'], line=dict(color = 'yellow'), name= "Moving Average"))
                 if EMA:
-                    new_df['ema'] = new_df['close'].ewm(span=rolling_window).mean()
-                    fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['ema'], line=dict(color = 'blue'), name= "Exponential MA"))
+                    trends['ema'] = trends['mean'].ewm(span=rolling_window).mean()
+                    fig.add_trace(go.Scatter(x=trends['date'], y=trends['ema'], line=dict(color = 'blue'), name= "Exponential MA"))
                 if Boll:      
-                    new_df['rolling_mean'] = new_df['close'].rolling(window=rolling_window).mean()
-                    new_df['std'] = new_df['close'].rolling(window=7).std()
-                    new_df['UpperBand'] = new_df['rolling_mean'] + 2 * new_df['std']
-                    new_df['LowerBand'] = new_df['rolling_mean'] - 2 * new_df['std']
-                    fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['UpperBand'], line=dict(color = 'pink'), name= "Upper Bollinger Band"))
-                    fig.add_trace(go.Scatter(x=new_df['date'], y=new_df['LowerBand'], line=dict(color = 'purple'), name= "Lower Bollinger Band"))
+                    trends['rolling_mean'] = trends['mean'].rolling(window=rolling_window).mean()
+                    trends['std'] = trends['mean'].rolling(window=rolling_window).std()
+                    trends['UpperBand'] = trends['rolling_mean'] + 2 * trends['std']
+                    trends['LowerBand'] = trends['rolling_mean'] - 2 * trends['std']
+                    fig.add_trace(go.Scatter(x=trends['date'], y=trends['UpperBand'], line=dict(color = 'pink'), name= "Upper Bollinger Band"))
+                    fig.add_trace(go.Scatter(x=trends['date'], y=trends['LowerBand'], line=dict(color = 'purple'), name= "Lower Bollinger Band"))
                 if Sar:
                     new_df['parabolic_sar_up'] = ta.psar_up(new_df['high'], new_df['low'], new_df['close'], step=0.02, max_step=0.2)
                     new_df['parabolic_sar_down'] = ta.psar_down(new_df['high'], new_df['low'], new_df['close'], step=0.02, max_step=0.2)
@@ -167,7 +193,8 @@ def home(request):
                 plot_div = plot(fig, output_type='div')
 
                 #print(tabulate(new_df, headers = 'keys', tablefmt = 'psql'))
-                new_df.to_excel("output.xlsx")
+                new_df.to_excel("candlestick.xlsx")
+                trends.to_excel("output.xlsx")
 
 
                 #Add plot to home html page
