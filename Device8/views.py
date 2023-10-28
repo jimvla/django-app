@@ -192,9 +192,8 @@ def home(request):
 
                 plot_div = plot(fig, output_type='div')
 
-                #print(tabulate(new_df, headers = 'keys', tablefmt = 'psql'))
-                new_df.to_excel("candlestick.xlsx")
-                trends.to_excel("output.xlsx")
+                #new_df.to_excel("candlestick.xlsx")
+                #trends.to_excel("output.xlsx")
 
 
                 #Add plot to home html page
